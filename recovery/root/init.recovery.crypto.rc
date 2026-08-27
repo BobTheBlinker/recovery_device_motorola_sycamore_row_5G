@@ -32,9 +32,8 @@ service teei_daemon /vendor/bin/teei_daemon \
 
 service vendor.keymint-beanpod /vendor/bin/hw/android.hardware.security.keymint@2.0-service.beanpod
     class early_hal
-    user root
+    user nobody
     group root
-    disabled
     seclabel u:r:recovery:s0
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/system/lib64/hw
     setenv LD_PRELOAD /vendor/lib64/libsycamore_keytrace.so
@@ -49,25 +48,50 @@ service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-ser
     setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/system/lib64/hw
 
 on init
-    chmod 0660 /dev/isee_tee0
-    chmod 0660 /dev/rpmb0
-    chmod 0660 /dev/teei_client
-    chmod 0660 /dev/teei_config
-    chmod 0660 /dev/teei_fp
+    # teeperf is not part of the stock Microtrust DAC sequence below.
     chmod 0660 /dev/teeperf
-    chmod 0660 /dev/ut_keymaster
     # V11-persist-ro: expose the stock Microtrust VFS namespace without
     # permitting journal replay or persistent writes.
     mkdir /mnt/vendor/persist 0771 system system
     mount ext4 /dev/block/sdc14 /mnt/vendor/persist ro noatime nosuid nodev wait noload
+
+on fs
+    restorecon /vendor/bin/teei_daemon
+
+    chmod 0660 /dev/teei_client
+    chown system system /dev/teei_client
+
+    chmod 0660 /dev/teei_config
+    chown system system /dev/teei_config
+
+    chmod 0666 /dev/isee_tee0
+    chown system drmrpc /dev/isee_tee0
+
+    chmod 0660 /dev/tz_vfs
+    chown system system /dev/tz_vfs
+
+    chmod 0660 /dev/teei_fp
+    chown system /dev/teei_fp
+
+    chown system drmrpc /dev/ut_keymaster
+    chmod 0660 /dev/ut_keymaster
+
+    chmod 0660 /dev/0:0:0:49476
+    chown system system /dev/0:0:0:49476
+
+    chmod 0660 /dev/rpmb0
+    chown system system /dev/rpmb0
+
+    chmod 0660 /dev/emmcrpmb0
+    chown system system /dev/emmcrpmb0
+
+    chown system system /dev/utr_tui
+    chmod 0660 /dev/utr_tui
+
     start teei_daemon
 
-on property:init.svc.teei_daemon=running
-    start vendor.keymint-beanpod
+on property:vendor.soter.teei.init=INIT_OK
     start vendor.gatekeeper-1-0
 
-# V16 boot-decrypt-unlock: match the stock post-fs-data logini lifecycle only
-# after Soter, persist VFS, and physical RPMB are all healthy.  Each producer
-# reaches its terminal value once, so this compound action is not retriggered.
-on property:vendor.soter.teei.init=INIT_OK && property:vendor.soter.teei.persist=OPEN && property:vendor.soter.teei.rpmb.flag=ok
+on post-fs-data
     setprop vendor.soter.teei.logini start
