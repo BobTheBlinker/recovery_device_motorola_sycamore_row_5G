@@ -1,0 +1,17 @@
+import /init.recovery.crypto.rc
+
+on init
+    symlink /dev/block /dev/block/bootdevice
+    setprop sys.usb.configfs 1
+    setprop sys.usb.controller 11201000.usb0
+
+# Stock recovery uses these aliases for MTK's UFS boot-region handling.
+on post-fs
+    symlink /dev/block/sda /dev/block/mmcblk0boot0
+    symlink /dev/block/sdb /dev/block/mmcblk0boot1
+    symlink /dev/block/mmcblk0boot0 /dev/block/by-name/preloader_a
+    symlink /dev/block/mmcblk0boot1 /dev/block/by-name/preloader_b
+    symlink /dev/block/by-name/preloader_a /dev/block/by-name/preloader_emmc_a
+    symlink /dev/block/by-name/preloader_b /dev/block/by-name/preloader_emmc_b
+    symlink /dev/block/by-name/preloader_a /dev/block/by-name/preloader_ufs_a
+    symlink /dev/block/by-name/preloader_b /dev/block/by-name/preloader_ufs_b

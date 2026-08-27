@@ -1,0 +1,9 @@
+<!--
+    Recovery framework manifest root.
+
+    Android 16 ships android.system.keystore2 as a framework VINTF fragment,
+    but Android 12 libvintf does not scan the fragment directory unless this
+    base manifest exists.  The generated Keystore2 fragment remains the sole
+    service declaration.
+-->
+<manifest version="1.0" type="framework"/>
