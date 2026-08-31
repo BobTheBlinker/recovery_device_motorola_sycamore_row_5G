@@ -1,0 +1,12 @@
+# Recovery stages hwservicemanager on the recovery rootfs, but it must run
+# in its native domain so it can own the hwbinder context manager and set
+# hwservicemanager.ready.
+
+recovery_only(`
+  allow hwservicemanager rootfs:file {
+    entrypoint open read execute getattr map
+  };
+  allow hwservicemanager rootfs:dir {
+    read open
+  };
+')

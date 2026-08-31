@@ -1,0 +1,8 @@
+# Recovery-only view of the metadata filesystem. The context= mount option
+# changes the in-memory mount view without relabeling persistent key files.
+type sycamore_recovery_metadata_file, fs_type, contextmount_type;
+
+recovery_only(`
+  allow recovery sycamore_recovery_metadata_file:dir { getattr search };
+  allow recovery sycamore_recovery_metadata_file:file { getattr open read };
+')

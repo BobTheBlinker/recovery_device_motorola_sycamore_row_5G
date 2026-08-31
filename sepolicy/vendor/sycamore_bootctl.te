@@ -1,0 +1,35 @@
+# Dedicated recovery BootControl HAL domain.  Do not attach the HAL server
+# attributes to the much broader recovery domain.
+type sycamore_bootctl, domain;
+hal_server_domain(sycamore_bootctl, hal_bootctl)
+
+# Recovery-cpio files all retain rootfs.  The service's explicit seclabel selects
+# this transition; domain_trans supplies init transition plus entrypoint/read/map
+# access for the executable, linker, implementation, and shared libraries.  It
+# deliberately does not grant execute_no_trans.
+domain_trans(init, rootfs, sycamore_bootctl)
+
+# libhardware searches rootfs-backed system/vendor hw directories for the
+# MTK BootControl implementation. Recovery cpio directories retain rootfs.
+allow sycamore_bootctl rootfs:dir { read open getattr search };
+
+# MTK BootControl initialization: observed enforcing AVCs after the
+# implementation library became reachable.
+allow sycamore_bootctl proc_cmdline:file { read open getattr };
+allow sycamore_bootctl sysfs_dt_firmware_android:dir search;
+allow sycamore_bootctl block_device:dir search;
+allow sycamore_bootctl metadata_file:dir search;
+allow sycamore_bootctl sycamore_recovery_metadata_file:dir search;
+
+# MTK BootControl reads the Android DT compatible node during initialization.
+allow sycamore_bootctl sysfs_dt_firmware_android:file { read open getattr };
+
+# fs_mgr's recovery fstab reader probes the DSU/GSI boot indicator.
+# Directory search is required so a nonexistent indicator returns ENOENT
+# rather than EACCES, which ReadFstabFromFile treats as fatal.
+allow sycamore_bootctl gsi_metadata_file:dir search;
+
+# BootControl reads/writes the A/B bootloader control and Virtual A/B
+# metadata stored in the misc partition. The physical device is labeled
+# misc_block_device by the device-specific file_contexts rule.
+allow sycamore_bootctl misc_block_device:blk_file rw_file_perms;

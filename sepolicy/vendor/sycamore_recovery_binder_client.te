@@ -1,0 +1,10 @@
+# Recovery hosts crypto components using the classic Binder servicemanager.
+# Native Keystore2 runs in u:r:keystore:s0; allow the recovery-side
+# fscrypt/vold code to locate and transact with the Keystore2 service.
+
+recovery_only(`
+  binder_use(recovery)
+  allow recovery keystore_service:service_manager find;
+  allow recovery keystore:binder call;
+  allow keystore recovery:binder transfer;
+')

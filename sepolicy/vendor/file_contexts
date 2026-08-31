@@ -8,3 +8,19 @@
 /dev/0:0:0:49476                    u:object_r:teei_rpmb_device:s0
 /dev/rpmb0                          u:object_r:teei_rpmb_device:s0
 /dev/utr_tui                        u:object_r:utr_tui_device:s0
+
+# Physical misc partition backing /dev/block/by-name/misc.
+/dev/block/sdc1    u:object_r:misc_block_device:s0
+
+/dev/dri/card0    u:object_r:graphics_device:s0
+
+# Physical userdata partition.
+/dev/block/sdc73    u:object_r:userdata_block_device:s0
+
+# Stock Beanpod KeyMint HAL copied into the recovery ramdisk.
+# Label only this executable so it can run in the native KeyMint HAL domain.
+/vendor/bin/hw/android\.hardware\.security\.keymint@2\.0-service\.beanpod    u:object_r:hal_keymint_default_exec:s0
+
+# Recovery-only crypto helper. Recovery cpio starts as rootfs, so init uses an
+# explicit native-vold seclabel; this exact mapping documents its intended type.
+/system/bin/sycamore_fscryptd    u:object_r:vold_exec:s0

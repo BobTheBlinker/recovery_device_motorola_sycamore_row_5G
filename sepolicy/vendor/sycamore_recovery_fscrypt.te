@@ -1,0 +1,19 @@
+# Recovery performs vold/fscrypt duties while bringing up FBE.
+# Permissions are added only as demonstrated necessary by enforcing runtime.
+
+recovery_only(`
+  # TWRP executes the vold FBE setup in recovery.  ro.crypto.type=file triggers
+  # the device-local init install_keyring action before fscrypt key install.
+  set_prop(recovery, vold_status_prop)
+
+  # installProvisioningKey() searches and inserts fscrypt-provisioning keys
+  # into the init-created shared fscrypt session keyring.
+  allow recovery init:key { search setattr write };
+
+  allow recovery unencrypted_data_file:dir { getattr search };
+  allow recovery unencrypted_data_file:file { getattr open read };
+
+  # installFsKeyringKey() opens /data before FS_IOC_ADD_ENCRYPTION_KEY.
+  allow recovery system_data_root_file:dir { read open ioctl };
+  allowxperm recovery system_data_root_file:dir ioctl 0x6617;
+')

@@ -1,0 +1,7 @@
+# Recovery ramdisk files retain rootfs labels. Explicit seclabel handles the
+# process transition; these are the dynamic ELF entrypoint/read/map permissions
+# normally supplied through servicemanager_exec.
+recovery_only(`
+  allow servicemanager rootfs:file { entrypoint open read execute getattr map };
+  allow servicemanager rootfs:dir { read open };
+')

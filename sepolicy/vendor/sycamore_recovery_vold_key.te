@@ -1,0 +1,11 @@
+# Recovery performs vold/fscrypt duties during metadata-encrypted /data mount.
+# Grant only the stock vold Keystore2 key permissions proven necessary by
+# enforcing runtime.
+
+recovery_only(`
+  allow recovery vold_key:keystore2_key {
+    convert_storage_key_to_ephemeral
+    manage_blob
+    use
+  };
+')

@@ -1,0 +1,7 @@
+service hwservicemanager /system/bin/hwservicemanager
+    override
+    user root
+    group root
+    disabled
+    seclabel u:r:hwservicemanager:s0
+    onrestart setprop hwservicemanager.ready false

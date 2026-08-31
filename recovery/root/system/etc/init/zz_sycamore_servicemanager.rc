@@ -1,0 +1,8 @@
+# Keep the recovery service shape, but run the classic Binder context manager
+# in the only domain permitted to register as /dev/binder's context manager.
+service servicemanager /system/bin/servicemanager
+    override
+    user root
+    group root readproc
+    disabled
+    seclabel u:r:servicemanager:s0

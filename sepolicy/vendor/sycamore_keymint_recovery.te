@@ -1,0 +1,7 @@
+# The stock KeyMint HAL runs in its native domain, but TWRP's recovery ramdisk
+# leaves the dynamic linker and packaged libraries labeled rootfs.
+# Permit mapping those immutable ramdisk files; add nothing broader unless
+# runtime evidence requires it.
+recovery_only(`
+  allow hal_keymint_default rootfs:file { map read execute getattr open };
+')

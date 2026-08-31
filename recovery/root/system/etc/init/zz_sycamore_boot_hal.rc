@@ -1,0 +1,16 @@
+# Motorola/MTK BootControl implementation requires the stock-compatible
+# libbase ABI. Keep that compatibility library isolated from recovery's
+# normal system library namespace.
+service boot-hal-1-2 /system/bin/android.hardware.boot@1.2-service
+    override
+    user root
+    group root
+    setenv LD_LIBRARY_PATH /system/lib64/boot-hal-stock:/vendor/lib64:/vendor/lib:/system/lib64:/system/lib:/sbin
+    disabled
+    seclabel u:r:sycamore_bootctl:s0
+
+# The overridden service intentionally omits init's interface declarations
+# to avoid duplicate-interface parsing against the generic TWRP definition.
+# Start it explicitly; the HAL registers its interfaces when running.
+on boot
+    start boot-hal-1-2

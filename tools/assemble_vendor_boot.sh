@@ -14,6 +14,7 @@ avbtool=$4
 platform_ramdisk="$device_tree/prebuilt/vendor_ramdisk/platform.cpio.lz4"
 recovery_ramdisk="$product_out/obj/PACKAGING/vendor_ramdisk_fragments_intermediates/recovery.cpio.lz4"
 recovery_root="$product_out/recovery/root"
+filtered_recovery_root=""
 keystore2_source="$product_out/system/bin/keystore2"
 keystore2_crypto_source="$product_out/system/lib64/libkeystore2_crypto.so"
 keystore2_staged="$recovery_root/system/bin/keystore2"
@@ -25,6 +26,13 @@ temporary_output="$product_out/vendor_boot.assembling.img"
 host_bin="$(dirname "$mkbootimg")"
 mkbootfs="$host_bin/mkbootfs"
 lz4="$host_bin/lz4"
+
+cleanup() {
+    if [[ -n "$filtered_recovery_root" && -d "$filtered_recovery_root" ]]; then
+        rm -rf -- "$filtered_recovery_root"
+    fi
+}
+trap cleanup EXIT
 
 expected_keystore2=31a9f7d9de497e06c465343ddb4d3aa3e8064c3051059c206b53d061d59f6256
 expected_keystore2_crypto=6e46dbfbf135c41131d64b91ce93fedf7c62077059fdbc24a5ca62b94e195132
@@ -69,7 +77,17 @@ verify_hash "$keystore2_crypto_staged" "$expected_keystore2_crypto"
         | xargs sha256sum > ramdisk-files.sha256sum
 )
 
-"$mkbootfs" -d "$product_out/system" "$recovery_root" \
+# The pristine PLATFORM fragment already supplies the complete module tree,
+# including the normal and recovery load lists.  Sycamore's boot chain exposes
+# later RECOVERY paths during normal first stage, so duplicate module metadata
+# here can shadow PLATFORM's normal modules.load.  Filter only the archive input;
+# leave recovery/root and the stock PLATFORM fragment untouched.
+filtered_recovery_root=$(mktemp -d "$product_out/recovery-root-filtered.XXXXXX")
+cp -a "$recovery_root/." "$filtered_recovery_root/"
+rm -rf -- "$filtered_recovery_root/lib/modules"
+test ! -e "$filtered_recovery_root/lib/modules"
+
+"$mkbootfs" -d "$product_out/system" "$filtered_recovery_root" \
     | "$lz4" -l -12 --favor-decSpeed > "$recovery_ramdisk"
 
 # PLATFORM must be first because its stock recovery files overlap paths in the

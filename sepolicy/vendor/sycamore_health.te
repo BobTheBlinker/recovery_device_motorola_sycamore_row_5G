@@ -1,0 +1,23 @@
+# Dedicated recovery Health HAL domain. Do not attach hal_health_server
+# to the broad recovery domain.
+type sycamore_health, domain;
+
+hal_server_domain(sycamore_health, hal_health)
+
+# Recovery-cpio executables retain the rootfs label. The service's explicit
+# seclabel selects this domain; domain_trans supplies init transition and
+# executable entrypoint access.
+domain_trans(init, rootfs, sycamore_health)
+
+# Recovery cpio directories retain rootfs. Health's passthrough loader must
+# traverse /system and its hw-library paths to find the recovery Health
+# implementation.
+allow sycamore_health rootfs:dir { read open getattr search };
+
+# Health 2.1 obtains the recovery Health 2.0 passthrough implementation
+# through a binder endpoint hosted in the recovery domain.
+allow sycamore_health recovery:binder call;
+
+# Health 2.1 must transfer the recovery-hosted passthrough binder object
+# while wrapping/registering the inherited Health implementation.
+allow sycamore_health recovery:binder transfer;

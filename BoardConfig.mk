@@ -89,8 +89,23 @@ TW_HAS_NO_RECOVERY_PARTITION := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
+# Optional A-Team dual-boot layout
+# N = standard metadata / userdata
+# Y = secondary metadata2 / userdata2
+SYCA_DUALBOOT ?= N
+
+ifeq ($(strip $(SYCA_DUALBOOT)),Y)
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery-dualboot.fstab
+else
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
-TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+endif
+# PLATFORM already provides the complete stock module tree. Remove the duplicate
+# device recovery metadata after recovery-root population and before mkbootfs;
+# otherwise its recovery-oriented modules.load shadows the stock normal list.
+BOARD_RECOVERY_IMAGE_PREPARE = test -n "$(TARGET_RECOVERY_ROOT_OUT)" && \
+    rm -rf -- "$(TARGET_RECOVERY_ROOT_OUT)/lib/modules"
+TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
+RECOVERY_GRAPHICS_FORCE_USE_LINELENGTH := true
 BOARD_HAS_NO_SELECT_BUTTON := true
 
 # V18: exact production teei_daemon domain and narrowly scoped Microtrust
@@ -108,15 +123,23 @@ TW_FRAMERATE := 90
 # A/B, dynamic partitions, fastbootd and storage.
 AB_OTA_UPDATER := true
 TW_INCLUDE_FASTBOOTD := true
+# Preserve the device recovery.fstab mount options. The stock additional fstab
+# otherwise reparses /metadata and drops its recovery-only context= option.
+TW_SKIP_ADDITIONAL_FSTAB := true
+# Build the crypto-only helper against the existing platform libvold, then use
+# TeamWin's supported device hook to relink it into recovery /system/bin.
+TW_RECOVERY_ADDITIONAL_RELINK_BINARY_FILES += $(TARGET_OUT_EXECUTABLES)/sycamore_fscryptd
+# The generic TWRP 12.1 synthetic /super object exposes raw restore/image
+# writes while logical mappings are live. Keep super discovery, but hide those
+# unsafe UI operations on this virtual A/B device.
+TW_EXCLUDE_SUPER_BACKUP_FLASH := true
 TW_INTERNAL_STORAGE_PATH := "/data/media/0"
 TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
-TW_BACKUP_DATA_MEDIA := true
 TW_USB_STORAGE := false
 # Runtime diagnostic: the initial configfs ADB gadget works, but entering the
 # GUI makes TWRP request mtp,adb.  This tree has no configfs mtp,adb property
 # action, so that transition unbinds the UDC and loses all host enumeration.
 # Keep the proven adb-only gadget until MTK configfs MTP is implemented.
-TW_EXCLUDE_MTP := true
 
 # Tree-only FBE diagnostic: avoid twrpApex::loadApexImage(), whose TWRP 12.1
 # implementation seeks an already-closed payload fd. Recovery's own crypto
@@ -147,6 +170,7 @@ TW_INCLUDE_LIBRESETPROP := true
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_DEFAULT_LANGUAGE := en
 TW_EXTRA_LANGUAGES := true
+TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 
 # Preserve the exact factory vendor_boot AVB fingerprint independently of the
 # recovery build fingerprint.
@@ -160,3 +184,9 @@ BOARD_AVB_VENDOR_BOOT_ADD_HASH_FOOTER_ARGS += \
 
 # Removable storage filesystem support.
 TW_INCLUDE_NTFS_3G := true
+
+# R7v9.60: platform-side TWRP FBE property definition
+SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/public
+
+# R7v9.60: platform-side TWRP FBE property context
+SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/private

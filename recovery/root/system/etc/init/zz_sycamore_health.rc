@@ -1,0 +1,18 @@
+# Sycamore recovery Health HAL.
+#
+# TeamWin packages Health 2.1 but leaves the service disabled. Starting it
+# satisfies recovery's inherited android.hardware.health@2.0 IHealth client.
+#
+# Run the HAL in a dedicated hal_health_server domain rather than recovery.
+
+service health-hal-2-1 /system/bin/android.hardware.health@2.1-service
+    override
+    user root
+    group root
+    capabilities WAKE_ALARM
+    file /dev/kmsg w
+    disabled
+    seclabel u:r:sycamore_health:s0
+
+on boot
+    start health-hal-2-1

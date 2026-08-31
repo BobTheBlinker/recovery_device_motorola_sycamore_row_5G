@@ -7,6 +7,10 @@ type ut_keymaster_device, dev_type;
 type teei_rpmb_device, dev_type;
 type utr_tui_device, dev_type;
 
+# V18.1 diagnostic only: keep global recovery enforcing while allowing the
+# production tee domain to expose any remaining recovery-rootfs AVC gaps.
+permissive tee;
+
 # Permit only the production tee domain to use these device interfaces.  The
 # daemon receives SYS_RAWIO from init and no other Linux capability.
 allow tee self:global_capability_class_set sys_rawio;

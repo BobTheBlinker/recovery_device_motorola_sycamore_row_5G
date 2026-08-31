@@ -1,0 +1,6 @@
+# TWRP recovery consumes android.hardware.health::IHealth through
+# recovery_utils/battery_utils.
+#
+# Make recovery a Health HAL client only. Do not make recovery a Health
+# server domain.
+hal_client_domain(recovery, hal_health)

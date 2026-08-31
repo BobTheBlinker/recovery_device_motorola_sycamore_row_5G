@@ -1,0 +1,13 @@
+# Beanpod KeyMint runs in its native hal_keymint_default domain in recovery.
+# Mirror the stock XT2575-4 access required for the MediaTek TEE client.
+#
+# vendor_mtk_soter_teei_prop is intentionally NOT referenced here because
+# that stock-only property type is not present in the recovery policy.
+
+recovery_only(`
+  allow hal_keymint_default teei_client_device:chr_file {
+    append getattr ioctl lock map open read watch watch_reads write
+  };
+
+  allow hal_keymint_default property_socket:sock_file write;
+')

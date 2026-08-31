@@ -13,24 +13,30 @@ AB_OTA_PARTITIONS := \
 
 PRODUCT_SOONG_NAMESPACES += $(DEVICE_PATH)
 
-# V16 boot-decrypt-unlock: expose the real FBE mode before teei_daemon starts.
-# The stock daemon snapshots these read-only properties in its startup thread;
-# setting them later from TWRP's partition scan leaves that thread waiting on
-# the legacy vold.decrypt fallback instead of issuing the FBE unlock ioctl.
+# fastbootd uses the HIDL fastboot HAL for optional vendor-specific commands.
+# This device has no recovery-side OEM implementation, so package AOSP's 1.1
+# passthrough stub while keeping the generic fastbootd logical-partition path.
+PRODUCT_PACKAGES += \
+    android.hardware.fastboot@1.1-impl-mock \
+    sycamore_boot_hal_stock_libbase \
+    sycamore_fscryptd
+
+# Let TWRP publish ro.crypto.state/type when it detects /data FBE.
+# Stock teei_daemon begins polling before ro.crypto.type=file appears; Beanpod
+# establishes its persistent KeyMint session first, then the daemon observes
+# the late FBE transition and signals boot_decrypt_lock.
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-    ro.product.device=XT2575-4 \
-    ro.crypto.state=encrypted \
-    ro.crypto.type=file
+    ro.product.device=XT2575-4
 
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt6835.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt6835.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt8755.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt8755.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.crypto.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.crypto.rc \
+    $(DEVICE_PATH)/recovery/root/system/etc/init/zz_sycamore_fscryptd.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_fscryptd.rc \
     $(DEVICE_PATH)/recovery/root/system/etc/vintf/manifest.xml:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/vintf/manifest.xml \
     $(DEVICE_PATH)/recovery/root/system/etc/vintf/manifest/android.hardware.health-service.example.xml:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/vintf/manifest/android.hardware.health-service.example.xml \
     $(DEVICE_PATH)/recovery/root/vendor/manifest.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/manifest.xml \
-    $(DEVICE_PATH)/recovery/root/vendor/etc/vintf/manifest/android.hardware.health-service.example.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest/android.hardware.health-service.example.xml \
     $(DEVICE_PATH)/recovery/root/vendor/thh/ta/0102030405060708090a0b0c0d0e0f10.ta:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/thh/ta/0102030405060708090a0b0c0d0e0f10.ta \
     $(DEVICE_PATH)/recovery/root/vendor/thh/ta/020f0000000000000000000000000000.ta:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/thh/ta/020f0000000000000000000000000000.ta \
     $(DEVICE_PATH)/recovery/root/vendor/thh/ta/06090000000000000000000000000000.ta:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/thh/ta/06090000000000000000000000000000.ta \
@@ -80,3 +86,11 @@ PRODUCT_VENDOR_PROPERTIES += \
     ro.vendor.mtk_boot_devices=soc/112b0000.ufshci \
     ro.hardware.gatekeeper=beanpod \
     ro.crypto.volume.filenames_mode=aes-256-cts
+
+# Sycamore BootControl HAL compatibility shim.
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/recovery/root/system/etc/init/zz_sycamore_boot_hal.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_boot_hal.rc \
+    $(DEVICE_PATH)/recovery/root/system/etc/init/zz_sycamore_servicemanager.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_servicemanager.rc
+
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/system/etc/init/zz_sycamore_hwservicemanager.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_hwservicemanager.rc

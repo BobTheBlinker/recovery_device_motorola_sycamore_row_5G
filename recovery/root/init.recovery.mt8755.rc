@@ -15,3 +15,38 @@ on post-fs
     symlink /dev/block/by-name/preloader_b /dev/block/by-name/preloader_emmc_b
     symlink /dev/block/by-name/preloader_a /dev/block/by-name/preloader_ufs_a
     symlink /dev/block/by-name/preloader_b /dev/block/by-name/preloader_ufs_b
+
+# Sycamore recovery MTP FunctionFS plumbing.
+#
+# TeamWin's generic recovery init creates the configfs gadget, ADB FunctionFS,
+# and fastboot FunctionFS. Sycamore adds only the missing MTP FunctionFS
+# instance used by TWRP's libtwrpmtp-ffs implementation.
+on post-fs
+    mkdir /config/usb_gadget/g1/functions/ffs.mtp
+    mkdir /dev/usb-ffs/mtp 0770 root root
+    mount functionfs mtp /dev/usb-ffs/mtp uid=1024,gid=1024,rmode=0770,fmode=0660
+    setprop sys.usb.mtp.device_type 3
+
+# TWRP requests mtp,adb when its MTP server is enabled.
+# adbd and TWRP's MTP FunctionFS implementation signal readiness independently.
+on property:sys.usb.config=mtp,adb && property:sys.usb.configfs=1
+    start adbd
+
+# Bind the composite gadget only after both FunctionFS implementations have
+# published their descriptors.
+on property:sys.usb.config=mtp,adb && property:sys.usb.ffs.ready=1 && property:sys.usb.ffs.mtp.ready=1 && property:sys.usb.configfs=1
+    write /config/usb_gadget/g1/UDC "none"
+    rm /config/usb_gadget/g1/configs/b.1/f1
+    rm /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/idVendor 0x18D1
+    write /config/usb_gadget/g1/idProduct 0x4EE2
+    write /config/usb_gadget/g1/configs/b.1/strings/0x409/configuration "mtp_adb"
+    symlink /config/usb_gadget/g1/functions/ffs.mtp /config/usb_gadget/g1/configs/b.1/f1
+    symlink /config/usb_gadget/g1/functions/ffs.adb /config/usb_gadget/g1/configs/b.1/f2
+    write /config/usb_gadget/g1/UDC ${sys.usb.controller}
+    setprop sys.usb.state ${sys.usb.config}
+
+# TeamWin's generic configfs cleanup removes f1. MTP+ADB also owns f2.
+on property:sys.usb.config=none && property:sys.usb.configfs=1
+    rm /config/usb_gadget/g1/configs/b.1/f2
+    setprop sys.usb.ffs.mtp.ready 0

@@ -1,125 +1,16 @@
 # Motorola Moto Pad (2026) / sycamore_row_5G
 #
-# Raw physical partition exposure for TWRP.
-# A/B partitions use their unsuffixed names with slotselect.
-#
-# Firmware partitions may be backed up/restored and flashed as images.
-# Device-state / calibration / security partitions are backupable but are not
-# exposed in Install Image by default.
-
-# ---------------------------------------------------------------------------
-# A/B boot / AVB
-# ---------------------------------------------------------------------------
+# Routine slot-aware boot-chain backup, restore, and Install Image targets.
+# /data is supplied by recovery.fstab and uses TWRP's file-backup path.
+# Dynamic logical partitions are intentionally handled through fastbootd.
+# Raw super, metadata, userdata, preloader, and device-identity partitions are
+# intentionally not exposed because this branch has no backup-only/no-restore
+# flag for raw partition objects.
 
 /boot                   emmc    /dev/block/by-name/boot                   flags=display="Boot";slotselect;backup=1;flashimg=1
-/vendor_boot            emmc    /dev/block/by-name/vendor_boot            flags=display="Vendor Boot";slotselect;backup=1;flashimg=1
 /init_boot              emmc    /dev/block/by-name/init_boot              flags=display="Init Boot";slotselect;backup=1;flashimg=1
+/vendor_boot            emmc    /dev/block/by-name/vendor_boot            flags=display="Vendor Boot";slotselect;backup=1;flashimg=1
 /dtbo                   emmc    /dev/block/by-name/dtbo                   flags=display="DTBO";slotselect;backup=1;flashimg=1
-
 /vbmeta                 emmc    /dev/block/by-name/vbmeta                 flags=display="VBMeta";slotselect;backup=1;flashimg=1
 /vbmeta_system          emmc    /dev/block/by-name/vbmeta_system          flags=display="VBMeta System";slotselect;backup=1;flashimg=1
 /vbmeta_vendor          emmc    /dev/block/by-name/vbmeta_vendor          flags=display="VBMeta Vendor";slotselect;backup=1;flashimg=1
-
-# ---------------------------------------------------------------------------
-# A/B firmware
-# ---------------------------------------------------------------------------
-
-/lk                     emmc    /dev/block/by-name/lk                     flags=display="LK";slotselect;backup=1;flashimg=1
-/tee                    emmc    /dev/block/by-name/tee                    flags=display="TEE";slotselect;backup=1;flashimg=1
-/gz                     emmc    /dev/block/by-name/gz                     flags=display="GenieZone";slotselect;backup=1;flashimg=1
-/logo                   emmc    /dev/block/by-name/logo                   flags=display="Logo";slotselect;backup=1;flashimg=1
-
-/md1img                 emmc    /dev/block/by-name/md1img                 flags=display="Modem";slotselect;backup=1;flashimg=1
-/spmfw                  emmc    /dev/block/by-name/spmfw                  flags=display="SPM Firmware";slotselect;backup=1;flashimg=1
-/mcf_ota                emmc    /dev/block/by-name/mcf_ota                flags=display="MCF OTA";slotselect;backup=1;flashimg=1
-/pi_img                 emmc    /dev/block/by-name/pi_img                 flags=display="PI Image";slotselect;backup=1;flashimg=1
-
-/dpm                    emmc    /dev/block/by-name/dpm                    flags=display="DPM";slotselect;backup=1;flashimg=1
-/scp                    emmc    /dev/block/by-name/scp                    flags=display="SCP";slotselect;backup=1;flashimg=1
-/vcp                    emmc    /dev/block/by-name/vcp                    flags=display="VCP";slotselect;backup=1;flashimg=1
-/sspm                   emmc    /dev/block/by-name/sspm                   flags=display="SSPM";slotselect;backup=1;flashimg=1
-/mcupm                  emmc    /dev/block/by-name/mcupm                  flags=display="MCUPM";slotselect;backup=1;flashimg=1
-
-/connsys_bt             emmc    /dev/block/by-name/connsys_bt             flags=display="Connectivity Bluetooth";slotselect;backup=1;flashimg=1
-/connsys_wifi           emmc    /dev/block/by-name/connsys_wifi           flags=display="Connectivity Wi-Fi";slotselect;backup=1;flashimg=1
-/connsys_gnss           emmc    /dev/block/by-name/connsys_gnss           flags=display="Connectivity GNSS";slotselect;backup=1;flashimg=1
-
-# ---------------------------------------------------------------------------
-# Dynamic partition container
-# ---------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------
-# Shared device state / configuration
-#
-# Backup + restore intentionally enabled.
-# flashimg is intentionally omitted so these do not appear as casual image
-# flash targets.
-# ---------------------------------------------------------------------------
-
-/misc                   emmc    /dev/block/by-name/misc                   flags=display="Misc";backup=1
-/para                   emmc    /dev/block/by-name/para                   flags=display="Para";backup=1
-/expdb                  emmc    /dev/block/by-name/expdb                  flags=display="EXPDB";backup=1
-/frp                    emmc    /dev/block/by-name/frp                    flags=display="FRP";backup=1
-
-/nvcfg                  emmc    /dev/block/by-name/nvcfg                  flags=display="NV Config";backup=1
-/nvdata                 emmc    /dev/block/by-name/nvdata                 flags=display="NV Data";backup=1
-/nvram                  emmc    /dev/block/by-name/nvram                  flags=display="NVRAM";backup=1
-
-/metadata_image         emmc    /dev/block/by-name/metadata               flags=display="Metadata (Raw)";backup=1
-/persist_image          emmc    /dev/block/by-name/persist                flags=display="Persist (Raw)";backup=1
-/protect1               emmc    /dev/block/by-name/protect1               flags=display="Protect 1";backup=1
-/protect2               emmc    /dev/block/by-name/protect2               flags=display="Protect 2";backup=1
-
-/seccfg                 emmc    /dev/block/by-name/seccfg                 flags=display="Security Config";backup=1
-/otp                    emmc    /dev/block/by-name/otp                    flags=display="OTP";backup=1
-/sec1                   emmc    /dev/block/by-name/sec1                   flags=display="SEC1";backup=1
-/proinfo                emmc    /dev/block/by-name/proinfo                flags=display="Product Info";backup=1
-/efuse                  emmc    /dev/block/by-name/efuse                  flags=display="eFuse Data";backup=1
-
-/pstore_image           emmc    /dev/block/by-name/pstore                 flags=display="PStore Partition";backup=1
-/boot_para              emmc    /dev/block/by-name/boot_para              flags=display="Boot Parameters";backup=1
-/dram_para              emmc    /dev/block/by-name/dram_para              flags=display="DRAM Parameters";backup=1
-
-/lenovolock             emmc    /dev/block/by-name/lenovolock             flags=display="Lenovo Lock";backup=1
-/lenovosku_1            emmc    /dev/block/by-name/lenovosku_1            flags=display="Lenovo SKU 1";backup=1
-/lenovosku_2            emmc    /dev/block/by-name/lenovosku_2            flags=display="Lenovo SKU 2";backup=1
-/lenovoraw              emmc    /dev/block/by-name/lenovoraw              flags=display="Lenovo Raw";backup=1
-/lenovocust_image       emmc    /dev/block/by-name/lenovocust             flags=display="Lenovo Customization (Raw)";backup=1
-
-/bk1                    emmc    /dev/block/by-name/bk1                    flags=display="BK1";backup=1
-/mrdump                 emmc    /dev/block/by-name/mrdump                 flags=display="MR Dump";backup=1
-/flashinfo              emmc    /dev/block/by-name/flashinfo              flags=display="Flash Info";backup=1
-
-# Full userdata raw image. This is enormous; normal /data backup remains the
-# preferred routine backup method.
-/userdata_image         emmc    /dev/block/by-name/userdata               flags=display="Userdata (Raw)";backup=1
-
-# ---------------------------------------------------------------------------
-# MediaTek preloader hardware boot areas
-#
-# These are outside the normal sdc GPT. Keep them backup/restore-only.
-# ---------------------------------------------------------------------------
-
-/preloader_a            emmc    /dev/block/by-name/preloader_a            flags=display="Preloader A";backup=1
-/preloader_b            emmc    /dev/block/by-name/preloader_b            flags=display="Preloader B";backup=1
-
-# ---------------------------------------------------------------------------
-# Dynamic/logical partition raw image access
-#
-# TWRP resolves the active-slot logical partitions from super and creates
-# /dev/block/bootdevice/by-name/<partition> symlinks to their mapper devices.
-# These aliases provide raw backup/restore and Install Image access.
-# ---------------------------------------------------------------------------
-
-/system_image          emmc    /dev/block/bootdevice/by-name/system          flags=display="System Image";backup=1;flashimg=1
-/system_ext_image      emmc    /dev/block/bootdevice/by-name/system_ext      flags=display="System EXT Image";backup=1;flashimg=1
-/product_image         emmc    /dev/block/bootdevice/by-name/product         flags=display="Product Image";backup=1;flashimg=1
-/vendor_image          emmc    /dev/block/bootdevice/by-name/vendor          flags=display="Vendor Image";backup=1;flashimg=1
-/vendor_dlkm_image     emmc    /dev/block/bootdevice/by-name/vendor_dlkm     flags=display="Vendor DLKM Image";backup=1;flashimg=1
-/odm_dlkm_image        emmc    /dev/block/bootdevice/by-name/odm_dlkm        flags=display="ODM DLKM Image";backup=1;flashimg=1
-/system_dlkm_image     emmc    /dev/block/bootdevice/by-name/system_dlkm     flags=display="System DLKM Image";backup=1;flashimg=1
-
-# Raw physical dynamic-partition container.
-# Separate alias avoids TWRP 12.1's synthetic /super size=0 behavior.
-/super_image            emmc    /dev/block/by-name/super                  flags=display="Super Raw Image";backup=1;flashimg=1

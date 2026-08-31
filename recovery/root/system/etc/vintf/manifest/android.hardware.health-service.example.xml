@@ -1,8 +1,10 @@
 <!--
     The pristine PLATFORM ramdisk places a device-type Health declaration in
-    the framework fragment directory.  Once recovery supplies a framework
-    base manifest, that aborts the entire merge.  The RECOVERY fragment is
-    overlaid second, so this empty framework fragment masks only that misplaced
-    declaration; the exact stock device declaration is staged under vendor.
+    the framework fragment directory. Once recovery supplies a framework base
+    manifest, that misplaced declaration aborts the merge.
+
+    The RECOVERY fragment is overlaid second, so this empty framework fragment
+    masks only that stock declaration. Recovery's actual Health HAL is declared
+    separately under vendor as android.hardware.health@2.1.
 -->
 <manifest version="1.0" type="framework"/>
