@@ -129,7 +129,8 @@ TARGET_SCREEN_WIDTH := 1600
 TARGET_SCREEN_HEIGHT := 2560
 TARGET_SCREEN_DENSITY := 320
 TW_THEME := portrait_hdpi
-TW_FRAMERATE := 90
+TW_FRAMERATE := 30
+TW_CUSTOM_CPU_TEMP_PATH := /sys/class/thermal/thermal_zone33/temp
 
 # A/B, dynamic partitions, fastbootd and storage.
 AB_OTA_UPDATER := true

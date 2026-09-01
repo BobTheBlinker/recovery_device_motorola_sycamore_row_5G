@@ -1,6 +1,15 @@
 import /init.recovery.crypto.rc
 
 on init
+    # Stock recovery intentionally omits CPUFreq from modules.load.recovery.
+    # TWRP is long-lived, so enable MT8755 hardware DVFS after first-stage
+    # recovery module loading has completed.
+    # Stock vendor_dlkm generic-ADC thermal provider for NTC sensors.
+    # Required for usb_ntc and the MTK USB burn protection worker.
+    insmod /thermal-modules/thermal-generic-adc.ko
+
+    insmod /lib/modules/mediatek-cpufreq-hw.ko
+
     symlink /dev/block /dev/block/bootdevice
     setprop sys.usb.configfs 1
     setprop sys.usb.controller 11201000.usb0

@@ -95,3 +95,10 @@ PRODUCT_COPY_FILES += \
 # Device-side Keystore2 database staging for Android 16 FBE.
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery/root/system/bin/sycamore_keystore2_stage.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/sycamore_keystore2_stage.sh
+
+# Stock MT8755 generic ADC thermal provider.
+# Recovery needs this for charger/flash/wifi/USB/board NTC thermal zones;
+# keep it outside /lib/modules so the pristine PLATFORM module tree and
+# its stock module metadata remain untouched.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/thermal-modules/thermal-generic-adc.ko:$(TARGET_COPY_OUT_RECOVERY)/root/thermal-modules/thermal-generic-adc.ko
