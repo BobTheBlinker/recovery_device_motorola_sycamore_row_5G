@@ -108,3 +108,8 @@ PRODUCT_COPY_FILES += \
 # recovery formats local timestamps.
 PRODUCT_COPY_FILES += \
     system/timezone/output_data/iana/tzdata:$(TARGET_COPY_OUT_RECOVERY)/root/system/usr/share/zoneinfo/tzdata
+
+# Stock MT8755 / MT6377 TIA NTC thermal provider.
+# Restores ap_ntc, ltepa_ntc, nrpa_ntc, and tsx_ntc in recovery.
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/recovery/root/thermal-modules/board_temp.ko:$(TARGET_COPY_OUT_RECOVERY)/root/thermal-modules/board_temp.ko

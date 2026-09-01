@@ -7,6 +7,7 @@ on init
     # Stock vendor_dlkm generic-ADC thermal provider for NTC sensors.
     # Required for usb_ntc and the MTK USB burn protection worker.
     insmod /thermal-modules/thermal-generic-adc.ko
+    insmod /thermal-modules/board_temp.ko
 
     insmod /lib/modules/mediatek-cpufreq-hw.ko
 
