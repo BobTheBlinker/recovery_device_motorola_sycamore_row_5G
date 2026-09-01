@@ -102,3 +102,9 @@ PRODUCT_COPY_FILES += \
 # its stock module metadata remain untouched.
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/thermal-modules/thermal-generic-adc.ko:$(TARGET_COPY_OUT_RECOVERY)/root/thermal-modules/thermal-generic-adc.ko
+
+# Android packed timezone database for recovery Bionic.
+# Without this, libc emits __bionic_open_tzdata warnings whenever
+# recovery formats local timestamps.
+PRODUCT_COPY_FILES += \
+    system/timezone/output_data/iana/tzdata:$(TARGET_COPY_OUT_RECOVERY)/root/system/usr/share/zoneinfo/tzdata
