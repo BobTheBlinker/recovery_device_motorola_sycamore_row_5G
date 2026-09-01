@@ -1,0 +1,8 @@
+# Recovery init directly loads selected kernel modules from the unpacked
+# vendor_boot rootfs after first-stage module loading has completed.
+#
+# Both the isolated thermal provider and the pristine PLATFORM /lib/modules
+# tree are rootfs objects in recovery. Android's module-origin neverallow
+# explicitly permits module loading from rootfs.
+allow init self:capability sys_module;
+allow init rootfs:system module_load;
