@@ -1,7 +1,0 @@
-
-# TWRP libpixelflinger/codeflinger creates an executable anonymous code cache.
-# Required when the recovery domain is enforcing.
-recovery_only(`
-  allow recovery self:process execmem;
-  allow recovery ashmem_libcutils_device:chr_file execute;
-')

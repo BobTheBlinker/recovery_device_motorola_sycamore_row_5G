@@ -9,5 +9,5 @@ recovery_only(`
     append getattr ioctl lock map open read watch watch_reads write
   };
 
-  allow hal_keymint_default property_socket:sock_file write;
+  set_prop(hal_keymint_default, sycamore_soter_teei_prop)
 ')

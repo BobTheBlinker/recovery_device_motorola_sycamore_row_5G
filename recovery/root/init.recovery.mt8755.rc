@@ -50,3 +50,10 @@ on property:sys.usb.config=mtp,adb && property:sys.usb.ffs.ready=1 && property:s
 on property:sys.usb.config=none && property:sys.usb.configfs=1
     rm /config/usb_gadget/g1/configs/b.1/f2
     setprop sys.usb.ffs.mtp.ready 0
+
+# Configure the regulator-vibrator LED for TWRP's native transient haptics.
+# Selecting the transient trigger creates duration/activate/state; state=1
+# makes each activation turn the vibrator on for the requested duration.
+on boot
+    write /sys/class/leds/vibrator/trigger transient
+    write /sys/class/leds/vibrator/state 1

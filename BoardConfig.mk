@@ -102,13 +102,24 @@ endif
 # PLATFORM already provides the complete stock module tree. Remove the duplicate
 # device recovery metadata after recovery-root population and before mkbootfs;
 # otherwise its recovery-oriented modules.load shadows the stock normal list.
+# Final recovery-root preparation:
+# - remove duplicate recovery module metadata so the pristine PLATFORM ramdisk wins
+# - present the exact production XT2575-4 vendor identity before Microtrust starts
 BOARD_RECOVERY_IMAGE_PREPARE = test -n "$(TARGET_RECOVERY_ROOT_OUT)" && \
-    rm -rf -- "$(TARGET_RECOVERY_ROOT_OUT)/lib/modules"
-TARGET_RECOVERY_PIXEL_FORMAT := "BGRA_8888"
-RECOVERY_GRAPHICS_FORCE_USE_LINELENGTH := true
+    rm -rf -- "$(TARGET_RECOVERY_ROOT_OUT)/lib/modules" && \
+    sed -i \
+        -e 's/^ro.product.vendor.device=sycamore_row_5G$$/ro.product.vendor.device=XT2575-4/' \
+        -e 's/^ro.product.vendor.name=twrp_sycamore_row_5G$$/ro.product.vendor.name=XT2575-4/' \
+        "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
+    grep -Fqx 'ro.product.device=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
+    grep -Fqx 'ro.product.vendor.device=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
+    grep -Fqx 'ro.product.vendor.name=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
+    grep -Fqx 'ro.product.vendor.model=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
+    grep -Fqx 'ro.build.product=sycamore_row_5G' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default"
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
 BOARD_HAS_NO_SELECT_BUTTON := true
 
-# V18: exact production teei_daemon domain and narrowly scoped Microtrust
+# Exact production teei_daemon domain and narrowly scoped Microtrust
 # device labels.  The platform policy already defines tee/tee_exec and its
 # init transition; this directory supplies only Sycamore-specific paths/types.
 BOARD_VENDOR_SEPOLICY_DIRS += $(DEVICE_PATH)/sepolicy/vendor
@@ -126,39 +137,18 @@ TW_INCLUDE_FASTBOOTD := true
 # Preserve the device recovery.fstab mount options. The stock additional fstab
 # otherwise reparses /metadata and drops its recovery-only context= option.
 TW_SKIP_ADDITIONAL_FSTAB := true
-# Build the crypto-only helper against the existing platform libvold, then use
-# TeamWin's supported device hook to relink it into recovery /system/bin.
-TW_RECOVERY_ADDITIONAL_RELINK_BINARY_FILES += $(TARGET_OUT_EXECUTABLES)/sycamore_fscryptd
-# The generic TWRP 12.1 synthetic /super object exposes raw restore/image
-# writes while logical mappings are live. Keep super discovery, but hide those
-# unsafe UI operations on this virtual A/B device.
-TW_EXCLUDE_SUPER_BACKUP_FLASH := true
 TW_INTERNAL_STORAGE_PATH := "/data/media/0"
 TW_INTERNAL_STORAGE_MOUNT_POINT := "data"
 TW_USB_STORAGE := false
-# Runtime diagnostic: the initial configfs ADB gadget works, but entering the
-# GUI makes TWRP request mtp,adb.  This tree has no configfs mtp,adb property
-# action, so that transition unbinds the UDC and loses all host enumeration.
-# Keep the proven adb-only gadget until MTK configfs MTP is implemented.
-
-# Tree-only FBE diagnostic: avoid twrpApex::loadApexImage(), whose TWRP 12.1
-# implementation seeks an already-closed payload fd. Recovery's own crypto
-# binaries and libraries are packaged in the ramdisk, so first prove the stock
-# KeyMint/TEE chain without depending on Android's runtime APEX mounts. The
-# generic source correction is retained separately as patch 0002.
+# TWRP 12.1's APEX loader is incompatible with this recovery's crypto path.
+# Sycamore packages the required Android 16 crypto binaries and libraries
+# directly in the recovery ramdisk, so recovery APEX mounting is unnecessary.
 TW_EXCLUDE_APEX := true
 
-# Stock FBE v2 + metadata encryption. Branch must provide Android 15/16 crypto.
-# Temporary first-hardware-boot diagnostic: keep /data encrypted and unmounted,
-# and bypass the synchronous Android 16 metadata/FBE decrypt path so the GUI
-# can start.  Re-enable these only after the KeyMint/Keystore2 dependency chain
-# is made compatible with the stock Android 16 vendor environment.
-SYCAMORE_DIAGNOSTIC_NO_DECRYPT := false
-ifneq ($(SYCAMORE_DIAGNOSTIC_NO_DECRYPT),true)
+# Stock FBE v2 with metadata encryption.
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
-endif
 BOARD_USES_METADATA_PARTITION := true
 
 # Bring-up/debug essentials; no missing-dependency escape hatch.
@@ -171,7 +161,6 @@ TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_DEFAULT_LANGUAGE := en
 TW_EXTRA_LANGUAGES := true
 TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
-
 # Preserve the exact factory vendor_boot AVB fingerprint independently of the
 # recovery build fingerprint.
 BOARD_AVB_VENDOR_BOOT_FINGERPRINT := Motorola/XT2575-4/XT2575-4:15/AP3A.240905.015.A2/9bdeac_017:user/release-keys
@@ -185,8 +174,8 @@ BOARD_AVB_VENDOR_BOOT_ADD_HASH_FOOTER_ARGS += \
 # Removable storage filesystem support.
 TW_INCLUDE_NTFS_3G := true
 
-# R7v9.60: platform-side TWRP FBE property definition
+# Platform-side TWRP FBE property definition.
 SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/public
 
-# R7v9.60: platform-side TWRP FBE property context
+# Platform-side TWRP FBE property context.
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/private

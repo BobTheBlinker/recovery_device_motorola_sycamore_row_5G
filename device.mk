@@ -18,8 +18,7 @@ PRODUCT_SOONG_NAMESPACES += $(DEVICE_PATH)
 # passthrough stub while keeping the generic fastbootd logical-partition path.
 PRODUCT_PACKAGES += \
     android.hardware.fastboot@1.1-impl-mock \
-    sycamore_boot_hal_stock_libbase \
-    sycamore_fscryptd
+    sycamore_boot_hal_stock_libbase
 
 # Let TWRP publish ro.crypto.state/type when it detects /data FBE.
 # Stock teei_daemon begins polling before ro.crypto.type=file appears; Beanpod
@@ -33,7 +32,6 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt6835.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt6835.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt8755.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt8755.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.crypto.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.crypto.rc \
-    $(DEVICE_PATH)/recovery/root/system/etc/init/zz_sycamore_fscryptd.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_fscryptd.rc \
     $(DEVICE_PATH)/recovery/root/system/etc/vintf/manifest.xml:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/vintf/manifest.xml \
     $(DEVICE_PATH)/recovery/root/system/etc/vintf/manifest/android.hardware.health-service.example.xml:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/vintf/manifest/android.hardware.health-service.example.xml \
     $(DEVICE_PATH)/recovery/root/vendor/manifest.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/manifest.xml \
@@ -79,7 +77,6 @@ PRODUCT_PACKAGES += \
     sycamore_tee_imsg_log \
     sycamore_tee_vfs \
     sycamore_teei_daemon \
-    libsycamore_keytrace
 
 PRODUCT_VENDOR_PROPERTIES += \
     ro.vendor.mtk_ufs_support=1 \
@@ -94,3 +91,7 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/system/etc/init/zz_sycamore_hwservicemanager.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_hwservicemanager.rc
+
+# Device-side Keystore2 database staging for Android 16 FBE.
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/recovery/root/system/bin/sycamore_keystore2_stage.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/sycamore_keystore2_stage.sh

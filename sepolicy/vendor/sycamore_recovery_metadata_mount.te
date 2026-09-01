@@ -1,7 +1,0 @@
-# Recovery performs vold metadata-encryption duties in-process.
-# MetadataCrypt.cpp temporarily sets the fsck execution context before
-# mounting metadata-encrypted /data.
-
-recovery_only(`
-  allow recovery self:process setexec;
-')

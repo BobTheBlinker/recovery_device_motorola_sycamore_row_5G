@@ -1,0 +1,11 @@
+# Stock fscrypt_prepare_user_storage() executes vold_prepare_subdirs from the
+# recovery rootfs. Keep the enforcing helper domain able to map that binary.
+allow vold_prepare_subdirs rootfs:file {
+    execute
+    getattr
+    map
+    open
+    read
+};
+
+allow vold_prepare_subdirs rootfs:dir read;

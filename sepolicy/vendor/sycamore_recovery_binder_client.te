@@ -4,7 +4,5 @@
 
 recovery_only(`
   binder_use(recovery)
-  allow recovery keystore_service:service_manager find;
-  allow recovery keystore:binder call;
   allow keystore recovery:binder transfer;
 ')

@@ -1,2 +1,4 @@
-# R7v9.60: dynamic twrp.user.<id>.decrypt state
+# Dynamic twrp.user.<id>.decrypt state.
 twrp.user.    u:object_r:twrp_user_decrypt_prop:s0
+
+vendor.soter.teei.    u:object_r:sycamore_soter_teei_prop:s0

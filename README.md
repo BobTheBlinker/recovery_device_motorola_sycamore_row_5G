@@ -36,57 +36,48 @@ Vendor Boot Header | Version 4
 
 Current state of features:
 
-- [x] Correct screen/recovery size
-- [x] Working display
-- [x] Working touch
-- [x] Screen brightness control
-- [x] Power off
-- [x] Reboot to system
-- [x] Reboot to bootloader
-- [x] Reboot to recovery
-- [x] Fastboot / fastbootd
-- [x] ADB
-- [x] Internal storage detected
-- [x] External SD card detected
-- [x] exFAT external storage
-- [x] F2FS userdata support
-- [x] EXT4 support
-- [x] EROFS support
-- [x] Dynamic partition support
-- [x] A/B slot handling
-- [x] `vendor_boot` v4 support
-- [x] Stock PLATFORM vendor ramdisk preserved
-- [x] TWRP RECOVERY vendor ramdisk fragment
-- [x] Metadata encryption successfully decrypted
-- [x] `/data` block device successfully decrypted and mounted
-- [x] KeyMint service
-- [x] Gatekeeper service
-- [x] Keystore2 service
-- [ ] Full FBE decryption
-- [ ] User PIN/password decryption
-- [ ] Decrypted `/data/media`
-- [ ] MTP
-- [ ] Vibration / haptics
-- [ ] USB mass storage export
-- [ ] TWRP native `vendor_boot` installation from pristine stock image
-- [ ] All commonly modified partitions exposed for image flashing
+- Correct screen/recovery size
+- Working touch and display
+- ADB
+- Support EROFS/F2FS/EXT4/exFAT/NTFS
+- External SD card support
+- Dynamic partition support
+- A/B slot handling
+- `vendor_boot` v4 support
+- Stock PLATFORM vendor ramdisk preserved
+- TWRP RECOVERY vendor ramdisk fragment
+- Decrypt `/data` with user PIN/password
+- Decrypted `/data/media`
+- Metadata encryption
+- KeyMint service
+- Gatekeeper service
+- Keystore2 service
+- MediaTek/Microtrust TEE
+- MTP export
+- SELinux enforcing
+- Vibrate and set vibration
 
-## Encryption status
+Still to validate before final release:
 
-Metadata encryption is working and TWRP successfully creates and mounts the decrypted userdata block device.
+- Backup/restore to/from internal/external storage and ADB
+- ADB sideload
+- Poweroff and all reboot targets
+- Flashing zip/images from the TWRP UI
+- All important partitions listed in wipe/mount/backup lists
+- Input devices via USB-OTG
+- Correct date/time configuration
+- Battery level reporting
+- Brightness adjustment
+- Screenshot
+- Advanced recovery features
 
-Current testing reaches the Android hardware-wrapped storage key path but fails during system-wide fscrypt key initialization.
+# Building
 
-The current failure occurs in the MediaTek Beanpod KeyMint trusted application while processing storage-key conversion:
+```bash
+export ALLOW_MISSING_DEPENDENCIES=true
+source build/envsetup.sh
+lunch twrp_sycamore_row_5G-eng
+mka vendorbootimage -j$(nproc --all)
+```
 
-```text
-cmd 0x18 / cmd 24
-km_error = -33
-
-AES_decrypt_ctr:
-decrypt keyblob compare hash failed
-
-DeserializeAuthEncryptedBlob:
-decrypt keyblob failed (-33)
-
-**Copyright (C) 2023 A-Team Digital Solutions**
+**Copyright (C) 2026 BOBtheBlinker | A-Team Digital Solutions**

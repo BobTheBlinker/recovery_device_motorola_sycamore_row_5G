@@ -23,4 +23,6 @@
 
 # Recovery-only crypto helper. Recovery cpio starts as rootfs, so init uses an
 # explicit native-vold seclabel; this exact mapping documents its intended type.
-/system/bin/sycamore_fscryptd    u:object_r:vold_exec:s0
+
+# Sycamore recovery: Keystore2 working database staged on recovery tmpfs
+/tmp/misc/keystore-sycamore(/.*)?    u:object_r:tmpfs:s0

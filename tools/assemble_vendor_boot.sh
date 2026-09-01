@@ -58,7 +58,7 @@ verify_hash() {
 
 # TWRP's relink phony targets express their source modules as order-only
 # dependencies.  A rebuilt executable or library can therefore leave an older
-# copy in recovery/root.  Refresh this diagnostic pair from their canonical
+# copy in recovery/root.  Refresh this critical pair from their canonical
 # build outputs immediately before archiving, and fail closed on either hash.
 verify_hash "$keystore2_source" "$expected_keystore2"
 verify_hash "$keystore2_crypto_source" "$expected_keystore2_crypto"

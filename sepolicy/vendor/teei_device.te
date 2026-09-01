@@ -7,9 +7,6 @@ type ut_keymaster_device, dev_type;
 type teei_rpmb_device, dev_type;
 type utr_tui_device, dev_type;
 
-# V18.1 diagnostic only: keep global recovery enforcing while allowing the
-# production tee domain to expose any remaining recovery-rootfs AVC gaps.
-permissive tee;
 
 # Permit only the production tee domain to use these device interfaces.  The
 # daemon receives SYS_RAWIO from init and no other Linux capability.
@@ -21,3 +18,17 @@ allow tee teei_fp_device:chr_file rw_file_perms;
 allow tee ut_keymaster_device:chr_file rw_file_perms;
 allow tee teei_rpmb_device:chr_file rw_file_perms;
 allow tee utr_tui_device:chr_file rw_file_perms;
+
+# Recovery cpio leaves the dynamic linker and runtime libraries labeled rootfs.
+# teei_daemon remains in the native enforcing tee domain and needs immutable
+# ELF traversal/mapping access to execute from the recovery environment.
+recovery_only(`
+  allow tee rootfs:dir { getattr open read search };
+  allow tee rootfs:file { execute getattr map open read };
+')
+
+# Microtrust TEE publishes vendor.soter.teei.init; init reacts to that state
+# while KeyMint publishes the corresponding km.init state.
+recovery_only(`
+  set_prop(tee, sycamore_soter_teei_prop)
+')

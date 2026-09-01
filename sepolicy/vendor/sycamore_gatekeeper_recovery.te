@@ -1,0 +1,26 @@
+# Recovery performs synthetic-password credential verification through the
+# enforcing Gatekeeper HAL.
+hal_client_domain(recovery, hal_gatekeeper)
+
+# Gatekeeper service/binaries are staged into the recovery rootfs.
+allow hal_gatekeeper_default rootfs:file {
+    execute
+    getattr
+    map
+    open
+    read
+};
+
+allow hal_gatekeeper_default rootfs:dir {
+    open
+    read
+};
+
+# Beanpod Gatekeeper talks to the MediaTek TEE client device.
+allow hal_gatekeeper_default teei_client_device:chr_file {
+    ioctl
+    map
+    open
+    read
+    write
+};

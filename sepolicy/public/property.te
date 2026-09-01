@@ -1,3 +1,6 @@
 
-# R7v9.60: TWRP per-user FBE state shared by vold and recovery.
+# TWRP per-user FBE state shared by vold and recovery.
 system_public_prop(twrp_user_decrypt_prop)
+
+# MediaTek/Microtrust Soter TEE state published by the native TEE/KeyMint stack.
+vendor_internal_prop(sycamore_soter_teei_prop)

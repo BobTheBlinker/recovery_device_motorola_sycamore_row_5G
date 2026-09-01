@@ -54,15 +54,4 @@ $(eval $(call sycamore-recovery-library,sycamore_soft_attestation,libsoft_attest
 $(eval $(call sycamore-recovery-library,sycamore_cppbor_external,libcppbor_external.so,vendor/lib64))
 $(eval $(call sycamore-recovery-library,sycamore_cppcose_rkp,libcppcose_rkp.so,vendor/lib64))
 
-# Diagnostic V8 only: observe the 64-byte STORAGE_KEY at Beanpod's final
-# userspace boundary, then tail-call the byte-identical stock A16 function.
-include $(CLEAR_VARS)
-LOCAL_MODULE := libsycamore_keytrace
-LOCAL_SRC_FILES := diagnostics/keytrace.cpp
-LOCAL_MODULE_CLASS := SHARED_LIBRARIES
-LOCAL_MODULE_PATH := $(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64
-LOCAL_MODULE_TAGS := optional
-LOCAL_SHARED_LIBRARIES := libcrypto libdl liblog
-include $(BUILD_SHARED_LIBRARY)
-
 endif
