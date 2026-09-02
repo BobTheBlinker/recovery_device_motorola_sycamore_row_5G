@@ -9,6 +9,16 @@ on init
     insmod /thermal-modules/thermal-generic-adc.ko
     insmod /thermal-modules/board_temp.ko
 
+    # Recovery-only SCP thermal ABI provider. Do not load the real SCP here.
+    # Load the proven MT8755 LVTS dependency chain in this exact order.
+    insmod /thermal-modules/scp_recovery_shim.ko
+    insmod /thermal-modules/mtk_gpu_hal.ko
+    insmod /thermal-modules/mtk_bp_thl.ko
+    insmod /thermal-modules/gpueb.ko
+    insmod /thermal-modules/mtk_gpufreq_wrapper.ko
+    insmod /thermal-modules/thermal_interface.ko
+    insmod /thermal-modules/soc_temp_lvts.ko
+
     insmod /lib/modules/mediatek-cpufreq-hw.ko
 
     symlink /dev/block /dev/block/bootdevice
