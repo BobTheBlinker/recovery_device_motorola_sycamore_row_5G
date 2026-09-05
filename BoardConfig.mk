@@ -89,12 +89,10 @@ TW_HAS_NO_RECOVERY_PARTITION := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-# Optional A-Team dual-boot layout
-# N = standard metadata / userdata
-# Y = secondary metadata2 / userdata2
-SYCA_DUALBOOT ?= N
-
-ifeq ($(strip $(SYCA_DUALBOOT)),Y)
+# Optional A-Team dual-boot layout.
+# Default: metadata / userdata
+# DUALBOOT=Y: metadata2 / userdata2
+ifeq ($(strip $(DUALBOOT)),Y)
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery-dualboot.fstab
 else
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
