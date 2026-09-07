@@ -27,8 +27,14 @@ PRODUCT_PACKAGES += \
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.product.device=XT2575-4
 
+ifeq ($(strip $(DUALBOOT)),Y)
+SYCA_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery-dualboot.fstab
+else
+SYCA_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
+endif
+
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/recovery.fstab:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
+    $(SYCA_RECOVERY_FSTAB):$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/recovery.fstab \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt6835.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt6835.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.mt8755.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.mt8755.rc \
     $(DEVICE_PATH)/recovery/root/init.recovery.crypto.rc:$(TARGET_COPY_OUT_RECOVERY)/root/init.recovery.crypto.rc \

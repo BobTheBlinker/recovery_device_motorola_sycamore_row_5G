@@ -14,8 +14,8 @@ odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 system_dlkm /system_dlkm erofs ro wait,slotselect,logical,first_stage_mount
 system_dlkm /system_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 
-/dev/block/by-name/metadata2 /metadata f2fs noatime,nosuid,nodev,discard,context=u:object_r:sycamore_recovery_metadata_file:s0 wait,check,formattable,first_stage_mount
-/dev/block/by-name/userdata2 /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+/dev/block/by-name/metadata /metadata f2fs noatime,nosuid,nodev,discard,context=u:object_r:sycamore_recovery_metadata_file:s0 wait,check,formattable,first_stage_mount,slotselect
+/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity,slotselect
 
 /dev/block/by-name/boot /boot emmc defaults slotselect
 /dev/block/by-name/vendor_boot /vendor_boot emmc defaults slotselect,flashimg=1
@@ -28,5 +28,3 @@ system_dlkm /system_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 /dev/block/by-name/persist /persist ext4 noatime,nosuid,nodev wait
 /dev/block/by-name/lenovocust /lenovocust ext4 noatime,nosuid,nodev wait
 
-/dev/block/mmcblk0p1 /external_sd auto defaults display="Micro SD Card",storagename="Micro SD Card",removable,storage
-/devices/platform/soc/11201000.usb0/11200000.xhci* /usb_otg auto defaults voldmanaged=usb_otg:auto,display="USB Storage",storagename="USB Storage",removable,storage

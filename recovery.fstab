@@ -28,5 +28,3 @@ system_dlkm /system_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 /dev/block/by-name/persist /persist ext4 noatime,nosuid,nodev wait
 /dev/block/by-name/lenovocust /lenovocust ext4 noatime,nosuid,nodev wait
 
-/dev/block/mmcblk0p1 /external_sd auto defaults display="Micro SD Card",storagename="Micro SD Card",removable,storage
-/devices/platform/soc/11201000.usb0/11200000.xhci* /usb_otg auto defaults voldmanaged=usb_otg:auto,display="USB Storage",storagename="USB Storage",removable,storage
