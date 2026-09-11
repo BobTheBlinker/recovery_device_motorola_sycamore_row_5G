@@ -55,20 +55,8 @@ The device uses the MediaTek MT8755 SoC on the MT6835 Android platform and store
 
 A final hardware-validation pass should cover:
 
-- Backup and restore using internal storage
-- Backup and restore using removable storage
 - ADB sideload
 - ZIP flashing
-- Image flashing from the TWRP UI
-- Wipe and format operations
-- Partition mount and backup lists
-- USB-OTG devices
-- Battery reporting
-- Brightness control
-- Date and time handling
-- Screenshots
-- Power-off and all reboot targets
-- Advanced recovery functions
 
 ## Building
 
@@ -91,8 +79,6 @@ Output:
 ```text
 out/target/product/sycamore_row_5G/vendor_boot.img
 ```
-
-`ALLOW_MISSING_DEPENDENCIES` is not required by this tree.
 
 ## Dual-boot variant
 
@@ -144,6 +130,6 @@ The tree also contains the device-specific components required for Android 16 FB
 - Motorola / Lenovo
 - MediaTek
 - A-Team Digital Solutions
-- BOBtheBlinker
+- BOBtheBlinker & PizzaG
 
-Copyright (C) 2026 BOBtheBlinker / A-Team Digital Solutions
+Copyright (C) 2026 A-Team Digital Solutions
