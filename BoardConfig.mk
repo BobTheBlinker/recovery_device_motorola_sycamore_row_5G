@@ -94,9 +94,9 @@ TW_HAS_NO_RECOVERY_PARTITION := true
 BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
 BOARD_MOVE_RECOVERY_RESOURCES_TO_VENDOR_BOOT := true
 BOARD_INCLUDE_RECOVERY_RAMDISK_IN_VENDOR_BOOT := true
-# Optional A-Team dual-boot layout.
-# Default: metadata / userdata
-# DUALBOOT=Y: metadata2 / userdata2
+# Optional A-Team slotted dual-boot layout.
+# Default: metadata / userdata without slot selection.
+# DUALBOOT=Y: metadata / userdata use slotselect via recovery-dualboot.fstab.
 ifeq ($(strip $(DUALBOOT)),Y)
 TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery-dualboot.fstab
 else
@@ -110,6 +110,33 @@ endif
 # - present the exact production XT2575-4 vendor identity before Microtrust starts
 BOARD_RECOVERY_IMAGE_PREPARE = test -n "$(TARGET_RECOVERY_ROOT_OUT)" && \
     rm -rf -- "$(TARGET_RECOVERY_ROOT_OUT)/lib/modules" && \
+    if [ "$(strip $(NODECRYPT))" = "Y" ]; then \
+        rm -f -- \
+            "$(TARGET_RECOVERY_ROOT_OUT)/init.recovery.crypto.rc" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/system/bin/sycamore_keystore2_stage.sh" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/system/etc/init/zz_sycamore_keystore2.rc" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/system/etc/vintf/manifest.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/system/etc/vintf/manifest/android.system.keystore2-service.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/manifest.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/vintf/manifest/android.hardware.security.keymint-service.beanpod.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/vintf/manifest/android.hardware.security.secureclock-service.beanpod.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/vintf/manifest/android.hardware.security.sharedsecret-service.beanpod.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/etc/vintf/manifest/android.hardware.gatekeeper@1.0-service.xml" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/bin/hw/android.hardware.security.keymint@2.0-service.beanpod" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/bin/hw/android.hardware.gatekeeper@1.0-service" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/bin/teei_daemon" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/hw/android.hardware.gatekeeper@1.0-impl.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/hw/gatekeeper.beanpod.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/hw/libSoftGatekeeper.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/android.hardware.security.keymint-V2-ndk.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/android.hardware.gatekeeper@1.0.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/libteei_daemon_vfs.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/lib_android_keymaster_keymint_utils.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/libkeymaster_messages.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/libkeymaster_portable.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/libkeymint.so" \
+            "$(TARGET_RECOVERY_ROOT_OUT)/vendor/lib64/libpuresoftkeymasterdevice.so"; \
+    fi && \
     sed -i \
         -e 's/^ro.product.vendor.device=sycamore_row_5G$$/ro.product.vendor.device=XT2575-4/' \
         -e 's/^ro.product.vendor.name=twrp_sycamore_row_5G$$/ro.product.vendor.name=XT2575-4/' \
@@ -150,12 +177,14 @@ TW_USB_STORAGE := false
 TW_EXCLUDE_APEX := true
 
 # Stock FBE v2 with metadata encryption.
+ifneq ($(strip $(NODECRYPT)),Y)
 TW_INCLUDE_CRYPTO := true
 TW_INCLUDE_CRYPTO_FBE := true
 TW_INCLUDE_FBE_METADATA_DECRYPT := true
+endif
 BOARD_USES_METADATA_PARTITION := true
 
-# Bring-up/debug essentials; no missing-dependency escape hatch.
+# Recovery utilities and diagnostics.
 TARGET_USES_LOGD := true
 TWRP_INCLUDE_LOGCAT := true
 TW_INCLUDE_REPACKTOOLS := true

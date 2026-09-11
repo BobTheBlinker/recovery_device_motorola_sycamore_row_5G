@@ -1,0 +1,16 @@
+# Local development / bring-up backups
+*.before-*
+*.bak
+*.orig
+*.old
+*.rej
+*.tmp
+*.swp
+*~
+
+# Editor / desktop junk
+.DS_Store
+Thumbs.db
+
+# Local scratch files
+tab

@@ -61,6 +61,7 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery/root/vendor/etc/vintf/manifest/android.hardware.security.sharedsecret-service.beanpod.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest/android.hardware.security.sharedsecret-service.beanpod.xml \
     $(DEVICE_PATH)/recovery/root/vendor/etc/vintf/manifest/android.hardware.gatekeeper@1.0-service.xml:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/etc/vintf/manifest/android.hardware.gatekeeper@1.0-service.xml
 
+ifneq ($(strip $(NODECRYPT)),Y)
 PRODUCT_PACKAGES += \
     sycamore_gatekeeper_impl \
     sycamore_gatekeeper_hidl \
@@ -82,7 +83,8 @@ PRODUCT_PACKAGES += \
     sycamore_tee_common \
     sycamore_tee_imsg_log \
     sycamore_tee_vfs \
-    sycamore_teei_daemon \
+    sycamore_teei_daemon
+endif
 
 PRODUCT_VENDOR_PROPERTIES += \
     ro.vendor.mtk_ufs_support=1 \
@@ -99,8 +101,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/recovery/root/system/etc/init/zz_sycamore_hwservicemanager.rc:$(TARGET_COPY_OUT_RECOVERY)/root/system/etc/init/zz_sycamore_hwservicemanager.rc
 
 # Device-side Keystore2 database staging for Android 16 FBE.
+ifneq ($(strip $(NODECRYPT)),Y)
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/recovery/root/system/bin/sycamore_keystore2_stage.sh:$(TARGET_COPY_OUT_RECOVERY)/root/system/bin/sycamore_keystore2_stage.sh
+endif
 
 # Stock MT8755 generic ADC thermal provider.
 # Recovery needs this for charger/flash/wifi/USB/board NTC thermal zones;
