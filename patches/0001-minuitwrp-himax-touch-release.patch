@@ -1,0 +1,29 @@
+diff --git a/minuitwrp/events.cpp b/minuitwrp/events.cpp
+index e497df62..d5780baa 100644
+--- a/minuitwrp/events.cpp
++++ b/minuitwrp/events.cpp
+@@ -558,7 +558,11 @@ static int vk_modify(struct ev *e, struct input_event *ev)
+                 // We're in a touch release, although some devices will still send positions as well
+                 e->mt_p.x = 0;
+                 e->mt_p.y = 0;
+-                touchReleaseOnNextSynReport = 1;
++                // Preserve a release already latched by ABS_MT_TRACKING_ID -1.
++                // Valid type-B devices may report zero major/pressure values
++                // after ending the tracking ID but before the same SYN_REPORT.
++                if (touchReleaseOnNextSynReport != 2)
++                    touchReleaseOnNextSynReport = 1;
+ #endif
+             }
+ #ifdef _EVENT_LOGGING
+@@ -572,7 +576,10 @@ static int vk_modify(struct ev *e, struct input_event *ev)
+                 // We're in a touch release, although some devices will still send positions as well
+                 e->mt_p.x = 0;
+                 e->mt_p.y = 0;
+-                touchReleaseOnNextSynReport = 1;
++                // Do not downgrade a release already latched by a negative
++                // tracking ID before this report is synchronized.
++                if (touchReleaseOnNextSynReport != 2)
++                    touchReleaseOnNextSynReport = 1;
+             }
+ #ifdef _EVENT_LOGGING
+             printf("EV: %s => EV_ABS  ABS_MT_PRESSURE  %d\n", e->deviceName, ev->value);
