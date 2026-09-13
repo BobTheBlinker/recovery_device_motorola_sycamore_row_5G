@@ -55,3 +55,38 @@ $(eval $(call sycamore-recovery-library,sycamore_cppbor_external,libcppbor_exter
 $(eval $(call sycamore-recovery-library,sycamore_cppcose_rkp,libcppcose_rkp.so,vendor/lib64))
 
 endif
+
+# ============================================================================
+# Sycamore final vendor_boot assembly
+#
+# Build TWRP normally, then replace the final vendor_boot.img with Sycamore's
+# required vendor_boot v4 layout:
+#   unnamed stock PLATFORM ramdisk
+#   generated TWRP RECOVERY fragment
+# ============================================================================
+
+ifeq ($(TARGET_DEVICE),sycamore_row_5G)
+
+SYCA_DEVICE_PATH := device/motorola/sycamore_row_5G
+SYCA_VENDOR_BOOT_ASSEMBLER := $(SYCA_DEVICE_PATH)/tools/assemble_vendor_boot.sh
+SYCA_FINAL_VENDOR_BOOT := $(PRODUCT_OUT)/vendor_boot.img
+
+.PHONY: sycamore-final-vendorboot
+
+sycamore-final-vendorboot: $(SYCA_FINAL_VENDOR_BOOT) $(SYCA_VENDOR_BOOT_ASSEMBLER)
+	@echo "============================================================"
+	@echo " SYCAMORE FINAL VENDOR_BOOT ASSEMBLY"
+	@echo "============================================================"
+	$(hide) bash $(SYCA_VENDOR_BOOT_ASSEMBLER) \
+		$(PRODUCT_OUT) \
+		$(SYCA_DEVICE_PATH) \
+		$(HOST_OUT_EXECUTABLES)/mkbootimg \
+		$(HOST_OUT_EXECUTABLES)/avbtool
+	$(hide) test -f $(SYCA_FINAL_VENDOR_BOOT)
+	$(hide) test "$$(stat -c %s $(SYCA_FINAL_VENDOR_BOOT))" -eq 67108864
+	@echo "Final vendor_boot:"
+	@sha256sum $(SYCA_FINAL_VENDOR_BOOT)
+
+vendorbootimage: sycamore-final-vendorboot
+
+endif

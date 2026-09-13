@@ -44,15 +44,8 @@ BOARD_MKBOOTIMG_ARGS += --dtb_offset 0x07c80000
 BOARD_MKBOOTIMG_ARGS += --vendor_cmdline "bootopt=64S3,32N2,64N2"
 
 # Preserve the pristine stock vendor ramdisk byte-for-byte as the unnamed base
-# PLATFORM ramdisk. AOSP then appends the generated TWRP RECOVERY fragment.
-# This matches the factory vendor_boot v4 layout and preserves overlay ordering.
-ifeq ($(strip $(DUALBOOT)),Y)
-BOARD_PREBUILT_VENDOR_RAMDISK := \
-    $(DEVICE_PATH)/prebuilt/vendor_ramdisk/platform-dualboot.cpio.lz4
-else
-BOARD_PREBUILT_VENDOR_RAMDISK := \
-    $(DEVICE_PATH)/prebuilt/vendor_ramdisk/platform.cpio.lz4
-endif
+# PLATFORM ramdisk is selected by tools/assemble_vendor_boot.sh.
+# The final assembler preserves the required vendor_boot v4 fragment ordering.
 
 # Physical partition sizes measured from GPT/factory images.
 BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864

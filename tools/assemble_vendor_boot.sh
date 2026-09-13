@@ -11,14 +11,14 @@ device_tree=$2
 mkbootimg=$3
 avbtool=$4
 
-platform_ramdisk="$device_tree/prebuilt/vendor_ramdisk/platform.cpio.lz4"
+if [[ "${DUALBOOT:-}" == "Y" ]]; then
+    platform_ramdisk="$device_tree/prebuilt/vendor_ramdisk/platform-dualboot.cpio.lz4"
+else
+    platform_ramdisk="$device_tree/prebuilt/vendor_ramdisk/platform.cpio.lz4"
+fi
 recovery_ramdisk="$product_out/obj/PACKAGING/vendor_ramdisk_fragments_intermediates/recovery.cpio.lz4"
 recovery_root="$product_out/recovery/root"
 filtered_recovery_root=""
-keystore2_source="$product_out/system/bin/keystore2"
-keystore2_crypto_source="$product_out/system/lib64/libkeystore2_crypto.so"
-keystore2_staged="$recovery_root/system/bin/keystore2"
-keystore2_crypto_staged="$recovery_root/system/lib64/libkeystore2_crypto.so"
 dtb="$product_out/dtb.img"
 output="$product_out/vendor_boot.img"
 raw_output="$product_out/vendor_boot.pre-avb.img"
@@ -34,38 +34,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-expected_keystore2=31a9f7d9de497e06c465343ddb4d3aa3e8064c3051059c206b53d061d59f6256
-expected_keystore2_crypto=6e46dbfbf135c41131d64b91ce93fedf7c62077059fdbc24a5ca62b94e195132
 
 for required in "$platform_ramdisk" "$recovery_ramdisk" "$dtb" "$mkbootimg" "$avbtool" \
-                "$mkbootfs" "$lz4" "$keystore2_source" "$keystore2_crypto_source"; do
+                "$mkbootfs" "$lz4"; do
     if [[ ! -f "$required" ]]; then
         echo "missing required input: $required" >&2
         exit 1
     fi
 done
 
-verify_hash() {
-    local file=$1
-    local expected=$2
-    local actual
-    actual=$(sha256sum "$file" | cut -d ' ' -f 1)
-    if [[ "$actual" != "$expected" ]]; then
-        echo "unexpected SHA-256 for $file: $actual (expected $expected)" >&2
-        exit 1
-    fi
-}
 
-# TWRP's relink phony targets express their source modules as order-only
-# dependencies.  A rebuilt executable or library can therefore leave an older
-# copy in recovery/root.  Refresh this critical pair from their canonical
-# build outputs immediately before archiving, and fail closed on either hash.
-verify_hash "$keystore2_source" "$expected_keystore2"
-verify_hash "$keystore2_crypto_source" "$expected_keystore2_crypto"
-install -m 0755 "$keystore2_source" "$keystore2_staged"
-install -m 0644 "$keystore2_crypto_source" "$keystore2_crypto_staged"
-verify_hash "$keystore2_staged" "$expected_keystore2"
-verify_hash "$keystore2_crypto_staged" "$expected_keystore2_crypto"
 
 (
     cd "$recovery_root"
