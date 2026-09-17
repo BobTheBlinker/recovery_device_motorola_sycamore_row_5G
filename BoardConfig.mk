@@ -132,7 +132,7 @@ BOARD_RECOVERY_IMAGE_PREPARE = test -n "$(TARGET_RECOVERY_ROOT_OUT)" && \
     fi && \
     sed -i \
         -e 's/^ro.product.vendor.device=sycamore_row_5G$$/ro.product.vendor.device=XT2575-4/' \
-        -e 's/^ro.product.vendor.name=twrp_sycamore_row_5G$$/ro.product.vendor.name=XT2575-4/' \
+        -e 's/^ro.product.vendor.name=.*$$/ro.product.vendor.name=XT2575-4/' \
         "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
     grep -Fqx 'ro.product.device=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
     grep -Fqx 'ro.product.vendor.device=XT2575-4' "$(TARGET_RECOVERY_ROOT_OUT)/prop.default" && \
@@ -205,3 +205,7 @@ SYSTEM_EXT_PUBLIC_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/publ
 
 # Platform-side TWRP FBE property context.
 SYSTEM_EXT_PRIVATE_SEPOLICY_DIRS += device/motorola/sycamore_row_5G/sepolicy/private
+
+# Backlight
+TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
+TW_MAX_BRIGHTNESS := 255
